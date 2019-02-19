@@ -54,7 +54,7 @@ function dump {
   DUMP_CMD="mysqldump --user=\"${DB_USER}\" --password=\"${DB_PASS}\" --host=\"${DB_HOST}\" \"$@\" \"${DB_NAME}\" > $TARGET_FILE"
 
   echo -e "Dumping database: ${DB_NAME}\n"
-  eval $DUMP_CMD
+  mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" "$@" "${DB_NAME}" > $TARGET_FILE
   if [ $? -eq 0 ];then
     echo -e "succesfully created $TARGET_FILE\n"
     DUMP_RESULT='SUCCESS'
