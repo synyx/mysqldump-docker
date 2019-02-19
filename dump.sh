@@ -51,7 +51,7 @@ function dump {
 
   TIMESTAMP=`date +%F_%H%M`
   TARGET_FILE="${TARGET_PATH}/${DB_NAME}_${TIMESTAMP}.sql"
-  DUMP_CMD="mysqldump --lock-all-tables --user=\"${DB_USER}\" --password=\"${DB_PASS}\" --host=\"${DB_HOST}\" \"$@\" \"${DB_NAME}\" > $TARGET_FILE"
+  DUMP_CMD="mysqldump --user=\"${DB_USER}\" --password=\"${DB_PASS}\" --host=\"${DB_HOST}\" \"$@\" \"${DB_NAME}\" > $TARGET_FILE"
 
   echo -e "Dumping database: ${DB_NAME}\n"
   eval $DUMP_CMD
