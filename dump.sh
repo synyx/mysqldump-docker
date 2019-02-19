@@ -7,6 +7,13 @@ DB_HOST=${DB_HOST:-${MYSQL_ENV_DB_HOST}}
 ALL_DATABASES=${ALL_DATABASES}
 IGNORE_DATABASE=${IGNORE_DATABASE}
 
+BACKUP_MAX_AGE='2 weeks ago' #1 month ago
+
+if [[ ${NAMESPACE} == "" ]]; then
+  TARGET_PATH="/mysqldump/${DB_NAME}"
+else
+  TARGET_PATH="/mysqldump/${DB_NAME}_${NAMESPACE}"
+fi
 
 if [[ ${DB_USER} == "" ]]; then
 	echo "Missing DB_USER env variable"
@@ -21,18 +28,53 @@ if [[ ${DB_HOST} == "" ]]; then
 	exit 1
 fi
 
-if [[ ${ALL_DATABASES} == "" ]]; then
-	if [[ ${DB_NAME} == "" ]]; then
-		echo "Missing DB_NAME env variable"
-		exit 1
-	fi
-	mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" "$@" "${DB_NAME}" > /mysqldump/"${DB_NAME}".sql
-else
-	databases=`mysql --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" -e "SHOW DATABASES;" | tr -d "| " | grep -v Database`
-for db in $databases; do
-    if [[ "$db" != "information_schema" ]] && [[ "$db" != "performance_schema" ]] && [[ "$db" != "mysql" ]] && [[ "$db" != _* ]] && [[ "$db" != "$IGNORE_DATABASE" ]]; then
-        echo "Dumping database: $db"
-        mysqldump --user="${DB_USER}" --password="${DB_PASS}" --host="${DB_HOST}" --databases $db > /mysqldump/$db.sql
-    fi
-done
+if [[ ${DB_NAME} == "" ]]; then
+  echo "Missing DB_NAME env variable"
+  exit 1
 fi
+
+function cleanup {
+  touch -d "$BACKUP_MAX_AGE" $TARGET_PATH/date_marker
+  TODEL=`find $TARGET_PATH \! -cnewer date_marker  -iname "${DB_NAME}*.tar.gz"`
+  for i in $TODEL;do
+    rm $i
+    echo -e "deleted $i\n"
+  done
+  rm $TARGET_PATH/date_marker
+}
+
+function dump {
+  if [ ! -d $TARGET_PATH ];then
+    echo "$TARGET_PATH does not exist. creating…"
+    mkdir -p $TARGET_PATH
+  fi
+
+  TIMESTAMP=`date +%F_%H%M`
+  TARGET_FILE="${TARGET_PATH}/${DB_NAME}_${TIMESTAMP}.sql"
+  DUMP_CMD="mysqldump --lock-all-tables --user=\"${DB_USER}\" --password=\"${DB_PASS}\" --host=\"${DB_HOST}\" \"$@\" \"${DB_NAME}\" > $TARGET_FILE"
+
+  echo -e "Dumping database: ${DB_NAME}\n"
+  eval $DUMP_CMD
+  if [ $? -eq 0 ];then
+    echo -e "succesfully created $TARGET_FILE\n"
+    DUMP_RESULT='SUCCESS'
+  else
+    DUMP_RESULT='FAIL'
+    if [ -e $TARGET_FILE ];then
+      echo -e "removing failed backup: $TARGET_FILE\n"
+      rm $TARGET_FILE
+    fi
+  fi
+}
+
+cleanup
+dump
+
+if [ $DUMP_RESULT == 'FAIL' ];then
+  echo -e "backup creation failed!\naborting"
+  exit 1
+fi
+
+echo -e "finished backup, good bye\n"
+exit 0
+
