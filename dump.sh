@@ -34,8 +34,8 @@ if [[ ${DB_NAME} == "" ]]; then
 fi
 
 function cleanup {
-  touch -d "$BACKUP_MAX_AGE" $TARGET_PATH/date_marker
-  TODEL=`find $TARGET_PATH \! -cnewer date_marker  -iname "${DB_NAME}*.tar.gz"`
+  touch -d "$BACKUP_MAX_AGE" "${TARGET_PATH}/date_marker"
+  TODEL=`find $TARGET_PATH \! -cnewer date_marker  -iname "${DB_NAME}*.sql"`
   for i in $TODEL;do
     rm $i
     echo -e "deleted $i\n"
