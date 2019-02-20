@@ -7,7 +7,7 @@ DB_HOST=${DB_HOST:-${MYSQL_ENV_DB_HOST}}
 ALL_DATABASES=${ALL_DATABASES}
 IGNORE_DATABASE=${IGNORE_DATABASE}
 
-BACKUP_MAX_AGE='2 weeks ago' #1 month ago
+BACKUP_MAX_AGE='1 week ago' #1 month ago
 
 if [[ ${NAMESPACE} == "" ]]; then
   TARGET_PATH="/mysqldump/${DB_NAME}"
