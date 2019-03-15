@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: db-dump
+spec:
+  containers:
+  - name: db-dump
+    image: synyx/mysqldump-docker:latest
+    env:
+    - name: DB_NAME
+      valueFrom:
+        configMapKeyRef:
+          key: db
+          name: database
+    - name: DB_HOST
+      valueFrom:
+        configMapKeyRef:
+          key: dbhost
+          name: database
+    - name: DB_USER
+      valueFrom:
+        secretKeyRef:
+          key: databaseUser
+          name: database 
+    - name: DB_PASS
+      valueFrom:
+        secretKeyRef:
+          key: databasePassword
+          name: database 
+    - name: NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    volumeMounts:
+    - mountPath: /mysqldump
+      name: database-dump
+  volumes:
+  - name: database-dump
+    glusterfs:
+      endpoints: gluster
+      path: database-dump-storage 
+
