@@ -67,13 +67,14 @@ function dump {
   fi
 }
 
-cleanup
 dump
 
 if [ $DUMP_RESULT == 'FAIL' ];then
   echo -e "backup creation failed!\naborting"
   exit 1
 fi
+
+cleanup
 
 echo -e "finished backup, good bye\n"
 exit 0
