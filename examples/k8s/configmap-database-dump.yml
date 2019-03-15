@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-dump
+  namespace: namespace
+data:
+  dbhost: database.namespace.svc.cluster.local
+  db: database

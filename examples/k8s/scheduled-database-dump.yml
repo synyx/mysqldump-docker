@@ -1,0 +1,45 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: database-dump
+  namespace: namespace
+spec:
+  schedule: '44 */2 * * *'
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: database-dump
+            image: synyx/mysqsqldump-docker:latest
+            env:
+              - name: DB_NAME
+                valueFrom:
+                  configMapKeyRef:
+                    name: database-dump
+                    key: db
+              - name: DB_HOST
+                valueFrom:
+                  configMapKeyRef:
+                    name: database-dump
+                    key: dbhost
+              - name: DB_USER
+                value: database
+              - name: DB_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: database-password
+                    key: password
+              - name: NAMESPACE
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+            volumeMounts:
+              - mountPath: /mysqldump
+                name: buchungen-database-dump
+          volumes:
+            - name: buchungen-database-dump
+              glusterfs:
+                endpoints: gluster
+                path: kubernetes-backup
+          restartPolicy: OnFailure
