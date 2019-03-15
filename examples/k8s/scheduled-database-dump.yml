@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
           - name: database-dump
-            image: synyx/mysqsqldump-docker:latest
+            image: synyx/mysqsqldump:latest
             env:
               - name: DB_NAME
                 valueFrom:

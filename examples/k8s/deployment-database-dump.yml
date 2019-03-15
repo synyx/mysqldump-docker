@@ -5,7 +5,7 @@ metadata:
 spec:
   containers:
   - name: db-dump
-    image: synyx/mysqldump-docker:latest
+    image: synyx/mysqldump:latest
     env:
     - name: DB_NAME
       valueFrom:
