@@ -9,7 +9,7 @@ be sure to add credentials via secrets and configure your db-access
 
 
 ###Oneshot:
-** examples/k8s/mysqldump.yml 
+** examples/k8s/deployment-database-dump.yml 
 
 After a successful backup this container will be `Completed`
 
