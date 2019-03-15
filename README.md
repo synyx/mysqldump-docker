@@ -26,6 +26,3 @@ Exec into that container and do a restore:
 
 `mysql -u $DB_USER  -p$DB_PASS -h $DB_HOST $DB_NAME < /mysqldump/mysqldump.sql`
 
-Exec into that container and do a restore:
-
-`mysql -u $DB_USER  -p$DB_PASS -h $DB_HOST $DB_NAME < /mysqldump/mysqldump.sql`
